@@ -35,12 +35,52 @@ namespace Xam.Plugin.WebView.Droid
             if (Reference == null || !Reference.TryGetTarget(out FormsWebViewRenderer renderer)) return;
             if (renderer.Element == null) return;
 
-            renderer.Element.HandleNavigationError((int) error.ErrorCode);
+            renderer.Element.HandleNavigationError((int)error.ErrorCode);
             renderer.Element.HandleNavigationCompleted(request.Url.ToString());
             renderer.Element.Navigating = false;
         }
 
-        public override WebResourceResponse ShouldInterceptRequest(Android.Webkit.WebView view, IWebResourceRequest request)
+        //For Android < 5.0
+        [Obsolete]
+        public override void OnReceivedError(Android.Webkit.WebView view, [GeneratedEnum] ClientError errorCode, string description, string failingUrl)
+        {
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Lollipop) return;
+
+            if (Reference == null || !Reference.TryGetTarget(out FormsWebViewRenderer renderer)) return;
+            if (renderer.Element == null) return;
+
+            renderer.Element.HandleNavigationError((int)errorCode);
+            renderer.Element.HandleNavigationCompleted(failingUrl.ToString());
+            renderer.Element.Navigating = false;
+        }
+
+        //For Android < 5.0
+        [Obsolete]
+        public override WebResourceResponse ShouldInterceptRequest(Android.Webkit.WebView view, string url)
+        {
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Lollipop) goto EndShouldInterceptRequest;
+
+            if (Reference == null || !Reference.TryGetTarget(out FormsWebViewRenderer renderer)) goto EndShouldInterceptRequest;
+            if (renderer.Element == null) goto EndShouldInterceptRequest;
+
+            var response = renderer.Element.HandleNavigationStartRequest(url);
+
+            if (response.Cancel || response.OffloadOntoDevice)
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    if (response.OffloadOntoDevice)
+                        AttemptToHandleCustomUrlScheme(view, url);
+
+                    view.StopLoading();
+                });
+            }
+
+            EndShouldInterceptRequest:
+            return base.ShouldInterceptRequest(view, url);
+        }
+
+        public override bool ShouldOverrideUrlLoading(Android.Webkit.WebView view, IWebResourceRequest request)
         {
             if (Reference == null || !Reference.TryGetTarget(out FormsWebViewRenderer renderer)) goto EndShouldInterceptRequest;
             if (renderer.Element == null) goto EndShouldInterceptRequest;
@@ -57,10 +97,11 @@ namespace Xam.Plugin.WebView.Droid
 
                     view.StopLoading();
                 });
+                return true;
             }
 
             EndShouldInterceptRequest:
-            return base.ShouldInterceptRequest(view, request);
+            return base.ShouldOverrideUrlLoading(view, request);
         }
 
         void CheckResponseValidity(Android.Webkit.WebView view, string url)

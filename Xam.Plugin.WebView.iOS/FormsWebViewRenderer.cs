@@ -12,6 +12,10 @@ using UIKit;
 using System.Net;
 using System.Threading;
 
+=======
+using Xam.Plugin.WebView.Abstractions.Delegates;
+using Xamarin.Forms;
+
 [assembly: Xamarin.Forms.ExportRenderer(typeof(FormsWebView), typeof(FormsWebViewRenderer))]
 namespace Xam.Plugin.WebView.iOS
 {
