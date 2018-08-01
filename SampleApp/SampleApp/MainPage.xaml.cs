@@ -25,6 +25,7 @@ namespace SampleApp
 
         void AddItems()
         {
+            
             Items.Add(new SelectionItem()
             {
                 Identifier = 0,
@@ -182,6 +183,13 @@ namespace SampleApp
             Items.Add(new SelectionItem()
             {
                 Identifier = 22,
+                Title = "Get/Set Cookie test",
+                Detail = "Set cookie in the web view"
+            });
+
+            Items.Add(new SelectionItem()
+            {
+                Identifier = 23,
                 Title = "Current URL",
                 Detail = "Bind to the current URL property"
             });
@@ -280,7 +288,12 @@ namespace SampleApp
                 case 21:
                     await ((NavigationPage)Application.Current.MainPage).PushAsync(new ClearCookieSample());
                     break;
+
                 case 22:
+                    await ((NavigationPage)Application.Current.MainPage).PushAsync(new GetSetCookieSample());
+                    break;
+
+                case 23:
                     await ((NavigationPage)Application.Current.MainPage).PushAsync(new CurrentUrlSample());
                     break;
                 default:
