@@ -12,7 +12,6 @@ using UIKit;
 using System.Net;
 using System.Threading;
 
-=======
 using Xam.Plugin.WebView.Abstractions.Delegates;
 using Xamarin.Forms;
 
