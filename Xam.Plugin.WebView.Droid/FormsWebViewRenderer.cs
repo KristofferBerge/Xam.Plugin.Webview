@@ -175,7 +175,8 @@ namespace Xam.Plugin.WebView.Droid
         }
 
 
-        private async Task<string> OnGetAllCookieRequestAsync() {
+        private async Task<string> OnGetAllCookieRequestAsync()
+        {
             if (Control == null || Element == null) return string.Empty;
             var cookies = string.Empty;
 
@@ -185,7 +186,8 @@ namespace Xam.Plugin.WebView.Droid
                 try
                 {
                     url = Control.Url;
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     url = Element.BaseUrl;
                 }
@@ -202,18 +204,18 @@ namespace Xam.Plugin.WebView.Droid
                     cookies = cookieManager.GetCookie(url);
                 }
             }
-                
+
             return cookies;
         }
 
         private async Task<string> OnSetCookieRequestAsync(Cookie cookie)
         {
             if (Control != null && Element != null)
-            { 
+            {
                 var url = new Uri(Control.Url).Host;
                 if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.LollipopMr1)
                 {
-                        
+
                     CookieManager.Instance.SetCookie(url, cookie.ToString());
                     CookieManager.Instance.Flush();
                 }
@@ -279,7 +281,8 @@ namespace Xam.Plugin.WebView.Droid
                             break;
                         }
                     }
-                } catch(Exception e) { }
+                }
+                catch (Exception e) { }
             }
 
 
@@ -295,7 +298,7 @@ namespace Xam.Plugin.WebView.Droid
             _callback.Reset();
 
             var response = string.Empty;
-            
+
             Device.BeginInvokeOnMainThread(() => Control.EvaluateJavascript(js, _callback));
 
             // wait!
@@ -341,6 +344,8 @@ namespace Xam.Plugin.WebView.Droid
                     LoadFromString();
                     break;
             }
+
+            SetCurrentUrl();
         }
 
         void LoadFromString()
@@ -390,6 +395,13 @@ namespace Xam.Plugin.WebView.Droid
 
 
         private void SetCurrentUrl(object sender, DecisionHandlerDelegate e)
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                Element.CurrentUrl = e.Uri;
+            });
+        }
+        private void SetCurrentUrl()
         {
             Device.BeginInvokeOnMainThread(() =>
             {
