@@ -82,6 +82,8 @@ namespace Xam.Plugin.WebView.Abstractions
 
         internal event EventHandler OnRefreshRequested;
 
+        internal event EventHandler OnUserAgentChanged;
+
         internal event JavascriptInjectionRequestDelegate OnJavascriptInjectionRequest;
 
         internal event ClearCookiesRequestDelegate OnClearCookiesRequested;
@@ -179,6 +181,22 @@ namespace Xam.Plugin.WebView.Abstractions
         {
             get => (bool)GetValue(UseWideViewPortProperty);
             set => SetValue(UseWideViewPortProperty, value);
+        }
+
+        /// <summary>
+        /// Bindable property to control the user agent
+        /// </summary>
+        public string UserAgent
+        {
+            get => (string)GetValue(UserAgentProperty);
+            set
+            {
+                if (UserAgent == value)
+                    return;
+
+                SetValue(UserAgentProperty, value);
+                OnUserAgentChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         public FormsWebView()

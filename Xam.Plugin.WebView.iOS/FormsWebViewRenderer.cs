@@ -31,7 +31,8 @@ namespace Xam.Plugin.WebView.iOS
 
         WKUserContentController _contentController;
 
-        public static void Initialize() {
+        public static void Initialize()
+        {
             var dt = DateTime.Now;
         
         }
@@ -62,9 +63,10 @@ namespace Xam.Plugin.WebView.iOS
             element.OnBackRequested += OnBackRequested;
             element.OnForwardRequested += OnForwardRequested;
             element.OnRefreshRequested += OnRefreshRequested;
+            element.OnUserAgentChanged += SetUserAgent;
 
             SetSource();
-		}
+        }
 
         void DestroyElement(FormsWebView element)
         {
@@ -77,6 +79,7 @@ namespace Xam.Plugin.WebView.iOS
             element.OnBackRequested -= OnBackRequested;
             element.OnForwardRequested -= OnForwardRequested;
             element.OnRefreshRequested -= OnRefreshRequested;
+            element.OnUserAgentChanged -= SetUserAgent;
 
             element.Dispose();
         }
@@ -86,7 +89,8 @@ namespace Xam.Plugin.WebView.iOS
             _navigationDelegate = new FormsNavigationDelegate(this);
             _contentController = new WKUserContentController();
             _contentController.AddScriptMessageHandler(this, "invokeAction");
-            _configuration = new WKWebViewConfiguration {
+            _configuration = new WKWebViewConfiguration
+            {
                 UserContentController = _contentController
             };
 
@@ -97,6 +101,8 @@ namespace Xam.Plugin.WebView.iOS
                 UIDelegate = this,
                 NavigationDelegate = _navigationDelegate,
             };
+
+            SetUserAgent();
 
             FormsWebView.CallbackAdded += OnCallbackAdded;
 
@@ -113,13 +119,14 @@ namespace Xam.Plugin.WebView.iOS
         }
 
         void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-            switch (e.PropertyName) {
+        {
+            switch (e.PropertyName)
+            {
                 case "Source":
                     SetSource();
                     break;
             }
-		}
+        }
 
         private async Task OnClearCookiesRequest()
         {
@@ -128,7 +135,8 @@ namespace Xam.Plugin.WebView.iOS
             var store = _configuration.WebsiteDataStore.HttpCookieStore;
 
             var cookies = await store.GetAllCookiesAsync();
-            foreach (var c in cookies) {
+            foreach (var c in cookies)
+            {
                 await store.DeleteCookieAsync(c);
             }
 
@@ -229,7 +237,7 @@ namespace Xam.Plugin.WebView.iOS
         }
 
         internal async Task<string> OnJavascriptInjectionRequest(string js)
-		{
+        {
             if (Control == null || Element == null) return string.Empty;
 
             var response = string.Empty;
@@ -243,13 +251,14 @@ namespace Xam.Plugin.WebView.iOS
 
             catch (Exception) { /* The Webview might not be ready... */ }
             return response;
-		}
+        }
 
         void SetSource()
         {
             if (Element == null || Control == null || string.IsNullOrWhiteSpace(Element.Source)) return;
 
-            switch (Element.ContentType) {
+            switch (Element.ContentType)
+            {
                 case WebViewContentType.Internet:
                     LoadInternetContent();
                     break;
@@ -353,7 +362,7 @@ namespace Xam.Plugin.WebView.iOS
             var alertController = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
             alertController.AddAction(UIAlertAction.Create("Ok", UIAlertActionStyle.Default, null));
             UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alertController, true, null);
-            
+
             completionHandler();
         }
 
@@ -363,19 +372,21 @@ namespace Xam.Plugin.WebView.iOS
         public void RunJavaScriptConfirmPanel(WKWebView webView, string message, WKFrameInfo frame, Action<bool> completionHandler)
         {
             var alertController = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
-            
-            alertController.AddAction(UIAlertAction.Create("Ok", UIAlertActionStyle.Default, okAction => {
+
+            alertController.AddAction(UIAlertAction.Create("Ok", UIAlertActionStyle.Default, okAction =>
+            {
 
                 completionHandler(true);
 
             }));
-            
-            alertController.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Default, cancelAction => {
+
+            alertController.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Default, cancelAction =>
+            {
 
                 completionHandler(false);
 
             }));
-            
+
             UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alertController, true, null);
         }
 
@@ -385,26 +396,36 @@ namespace Xam.Plugin.WebView.iOS
         public void RunJavaScriptTextInputPanel(WKWebView webView, string prompt, string defaultText, WebKit.WKFrameInfo frame, System.Action<string> completionHandler)
         {
             var alertController = UIAlertController.Create(null, prompt, UIAlertControllerStyle.Alert);
-            
+
             UITextField alertTextField = null;
-            alertController.AddTextField(textField => {
+            alertController.AddTextField(textField =>
+            {
                 textField.Placeholder = defaultText;
                 alertTextField = textField;
             });
-            
-            alertController.AddAction(UIAlertAction.Create("Ok", UIAlertActionStyle.Default, okAction => {
+
+            alertController.AddAction(UIAlertAction.Create("Ok", UIAlertActionStyle.Default, okAction =>
+            {
 
                 completionHandler(alertTextField.Text);
 
             }));
-            
-            alertController.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Default, cancelAction => {
+
+            alertController.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Default, cancelAction =>
+            {
 
                 completionHandler(null);
 
             }));
 
             UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alertController, true, null);
+        }
+        private void SetUserAgent(object sender = null, EventArgs e = null)
+        {
+            if (Element.UserAgent != null && Element.UserAgent.Length > 0)
+            {
+                Control.CustomUserAgent = Element.UserAgent;
+            }
         }
 
     }

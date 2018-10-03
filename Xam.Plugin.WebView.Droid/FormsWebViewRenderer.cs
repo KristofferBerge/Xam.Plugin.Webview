@@ -70,6 +70,7 @@ namespace Xam.Plugin.WebView.Droid
             element.OnForwardRequested += OnForwardRequested;
             element.OnRefreshRequested += OnRefreshRequested;
             element.OnNavigationStarted += SetCurrentUrl;
+            element.OnUserAgentChanged += SetUserAgent;
 
             SetSource();
         }
@@ -86,6 +87,7 @@ namespace Xam.Plugin.WebView.Droid
             element.OnForwardRequested -= OnForwardRequested;
             element.OnRefreshRequested -= OnRefreshRequested;
             element.OnNavigationStarted -= SetCurrentUrl;
+            element.OnUserAgentChanged -= SetUserAgent;
 
             element.Dispose();
         }
@@ -101,6 +103,9 @@ namespace Xam.Plugin.WebView.Droid
             // Defaults
             webView.Settings.JavaScriptEnabled = true;
             webView.Settings.DomStorageEnabled = true;
+
+            SetUserAgent();
+
             webView.AddJavascriptInterface(new FormsWebViewBridge(this), "bridge");
             webView.SetWebViewClient(new FormsWebViewClient(this));
             webView.SetWebChromeClient(new FormsWebViewChromeClient(this));
@@ -401,12 +406,21 @@ namespace Xam.Plugin.WebView.Droid
                 Element.CurrentUrl = e.Uri;
             });
         }
+
         private void SetCurrentUrl()
         {
             Device.BeginInvokeOnMainThread(() =>
             {
                 Element.CurrentUrl = Control.Url;
             });
+        }
+
+        private void SetUserAgent(object sender = null, EventArgs e = null)
+        {
+            if (Element.UserAgent != null && Element.UserAgent.Length > 0)
+            {
+                Control.Settings.UserAgentString = Element.UserAgent;
+            }
         }
     }
 }

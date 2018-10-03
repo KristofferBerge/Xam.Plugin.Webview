@@ -25,7 +25,7 @@ namespace SampleApp
 
         void AddItems()
         {
-            
+
             Items.Add(new SelectionItem()
             {
                 Identifier = 0,
@@ -193,6 +193,13 @@ namespace SampleApp
                 Title = "Current URL",
                 Detail = "Bind to the current URL property"
             });
+
+            Items.Add(new SelectionItem()
+            {
+                Identifier = 24,
+                Title = "UserAgent test",
+                Detail = "Set custom user agent"
+            });
         }
 
         async void OnItemSelected(object sender, SelectedItemChangedEventArgs e)
@@ -296,6 +303,11 @@ namespace SampleApp
                 case 23:
                     await ((NavigationPage)Application.Current.MainPage).PushAsync(new CurrentUrlSample());
                     break;
+
+                case 24:
+                    await ((NavigationPage)Application.Current.MainPage).PushAsync(new UserAgentSample());
+                    break;
+
                 default:
                     break;
             }
