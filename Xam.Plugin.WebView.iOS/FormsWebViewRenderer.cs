@@ -314,7 +314,7 @@ namespace Xam.Plugin.WebView.iOS
         }
         private void SetUserAgent(object sender = null, EventArgs e = null)
         {
-            if (Element.UserAgent != null && Element.UserAgent.Length > 0)
+            if (Control != null && Element.UserAgent != null && Element.UserAgent.Length > 0)
             {
                 Control.CustomUserAgent = Element.UserAgent;
             }

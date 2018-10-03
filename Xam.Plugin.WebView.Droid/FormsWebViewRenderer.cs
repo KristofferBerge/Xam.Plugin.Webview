@@ -273,7 +273,7 @@ namespace Xam.Plugin.WebView.Droid
 
         private void SetUserAgent(object sender = null, EventArgs e = null)
         {
-            if (Element.UserAgent != null && Element.UserAgent.Length > 0)
+            if (Control != null && Element.UserAgent != null && Element.UserAgent.Length > 0)
             {
                 Control.Settings.UserAgentString = Element.UserAgent;
             }
