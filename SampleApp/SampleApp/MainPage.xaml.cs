@@ -178,6 +178,12 @@ namespace SampleApp
                 Title = "Cookie test",
                 Detail = "Clear cookies in the web view"
             });
+            Items.Add(new SelectionItem()
+            {
+                Identifier = 24,
+                Title = "UserAgent test",
+                Detail = "Set custom user agent"
+            });
         }
 
         async void OnItemSelected(object sender, SelectedItemChangedEventArgs e)
@@ -272,6 +278,10 @@ namespace SampleApp
 
                 case 21:
                     await ((NavigationPage)Application.Current.MainPage).PushAsync(new ClearCookieSample());
+                    break;
+
+                case 24:
+                    await ((NavigationPage)Application.Current.MainPage).PushAsync(new UserAgentSample());
                     break;
 
                 default:

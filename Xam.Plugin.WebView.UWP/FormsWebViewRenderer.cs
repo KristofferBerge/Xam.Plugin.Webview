@@ -5,6 +5,7 @@ using Windows.Web.Http;
 using Xam.Plugin.WebView.Abstractions;
 using Xam.Plugin.WebView.Abstractions.Enumerations;
 using Xam.Plugin.WebView.UWP;
+using Xamarin.Forms;
 using Xamarin.Forms.Platform.UWP;
 
 [assembly: ExportRenderer(typeof(FormsWebView), typeof(FormsWebViewRenderer))]
@@ -111,11 +112,44 @@ namespace Xam.Plugin.WebView.UWP
 
         void OnNavigationStarting(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationStartingEventArgs args)
         {
+
             if (Element == null) return;
+
 
             Element.Navigating = true;
             var handler = Element.HandleNavigationStartRequest(args.Uri != null ? args.Uri.AbsoluteUri : Element.Source);
             args.Cancel = handler.Cancel;
+
+            // Try to handle cases with custom user agent. This is kinda not supported by the UWP web-view
+            // https://stackoverflow.com/questions/39490430/change-default-user-agent-in-webview-uwp
+            if (Element.UserAgent != null && Element.UserAgent.Length > 0)
+            {
+                // Unsubscribe to avoid eternal loop
+                Control.NavigationStarting -= OnNavigationStarting;
+                // Cancel navigation, we need to start a new custom one to add the user agent
+                args.Cancel = true;
+                NavigateWithCustomUserAgent(args, Element.UserAgent);
+            }
+        }
+
+        private void NavigateWithCustomUserAgent(WebViewNavigationStartingEventArgs args, string userAgent)
+        {
+            try
+            {
+                // Create new request with custom user agent
+                var requestMsg = new Windows.Web.Http.HttpRequestMessage(HttpMethod.Get, args.Uri);
+                requestMsg.Headers.Add("User-Agent", userAgent);
+                Control.NavigateWithHttpRequestMessage(requestMsg);
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+            finally
+            {
+                // Re-subscribe after navigating
+                Control.NavigationStarting += OnNavigationStarting;
+            }
         }
 
         void OnNavigationCompleted(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationCompletedEventArgs args)

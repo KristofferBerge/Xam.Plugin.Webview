@@ -64,6 +64,7 @@ namespace Xam.Plugin.WebView.Droid
             element.OnBackRequested += OnBackRequested;
             element.OnForwardRequested += OnForwardRequested;
             element.OnRefreshRequested += OnRefreshRequested;
+            element.OnUserAgentChanged += SetUserAgent;
 
             SetSource();
         }
@@ -76,6 +77,7 @@ namespace Xam.Plugin.WebView.Droid
             element.OnBackRequested -= OnBackRequested;
             element.OnForwardRequested -= OnForwardRequested;
             element.OnRefreshRequested -= OnRefreshRequested;
+            element.OnUserAgentChanged -= SetUserAgent;
 
             element.Dispose();
         }
@@ -91,6 +93,9 @@ namespace Xam.Plugin.WebView.Droid
             // Defaults
             webView.Settings.JavaScriptEnabled = true;
             webView.Settings.DomStorageEnabled = true;
+
+            SetUserAgent();
+
             webView.AddJavascriptInterface(new FormsWebViewBridge(this), "bridge");
             webView.SetWebViewClient(new FormsWebViewClient(this));
             webView.SetWebChromeClient(new FormsWebViewChromeClient(this));
@@ -173,7 +178,7 @@ namespace Xam.Plugin.WebView.Droid
             _callback.Reset();
 
             var response = string.Empty;
-            
+
             Device.BeginInvokeOnMainThread(() => Control.EvaluateJavascript(js, _callback));
 
             // wait!
@@ -264,6 +269,14 @@ namespace Xam.Plugin.WebView.Droid
             }
 
             Control.LoadUrl(Element.Source, headers);
+        }
+
+        private void SetUserAgent(object sender = null, EventArgs e = null)
+        {
+            if (Element.UserAgent != null && Element.UserAgent.Length > 0)
+            {
+                Control.Settings.UserAgentString = Element.UserAgent;
+            }
         }
     }
 }
