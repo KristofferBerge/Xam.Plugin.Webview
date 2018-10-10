@@ -104,7 +104,6 @@ namespace Xam.Plugin.WebView.Droid
             webView.Settings.JavaScriptEnabled = true;
             webView.Settings.DomStorageEnabled = true;
 
-            SetUserAgent();
 
             webView.AddJavascriptInterface(new FormsWebViewBridge(this), "bridge");
             webView.SetWebViewClient(new FormsWebViewClient(this));
@@ -113,6 +112,7 @@ namespace Xam.Plugin.WebView.Droid
 
             FormsWebView.CallbackAdded += OnCallbackAdded;
             SetNativeControl(webView);
+            SetUserAgent();
             OnControlChanged?.Invoke(this, webView);
         }
 
