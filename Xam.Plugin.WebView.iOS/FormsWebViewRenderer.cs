@@ -34,7 +34,7 @@ namespace Xam.Plugin.WebView.iOS
         public static void Initialize()
         {
             var dt = DateTime.Now;
-        
+
         }
 
         protected override void OnElementChanged(ElementChangedEventArgs<FormsWebView> e)
@@ -51,8 +51,8 @@ namespace Xam.Plugin.WebView.iOS
                 DestroyElement(e.OldElement);
         }
 
-		void SetupElement(FormsWebView element)
-		{
+        void SetupElement(FormsWebView element)
+        {
             NSHttpCookieStorage.SharedStorage.AcceptPolicy = NSHttpCookieAcceptPolicy.Always;
             element.PropertyChanged += OnPropertyChanged;
             element.OnJavascriptInjectionRequest += OnJavascriptInjectionRequest;
@@ -91,7 +91,8 @@ namespace Xam.Plugin.WebView.iOS
             _contentController.AddScriptMessageHandler(this, "invokeAction");
             _configuration = new WKWebViewConfiguration
             {
-                UserContentController = _contentController
+                UserContentController = _contentController,
+                AllowsInlineMediaPlayback = true
             };
 
 
@@ -102,11 +103,11 @@ namespace Xam.Plugin.WebView.iOS
                 NavigationDelegate = _navigationDelegate,
             };
 
-            SetUserAgent();
 
             FormsWebView.CallbackAdded += OnCallbackAdded;
 
             SetNativeControl(wkWebView);
+            SetUserAgent();
             OnControlChanged?.Invoke(this, wkWebView);
         }
 
@@ -142,7 +143,8 @@ namespace Xam.Plugin.WebView.iOS
 
             var url = new Uri(Element.Source);
             NSHttpCookie[] sharedCookies = NSHttpCookieStorage.SharedStorage.CookiesForUrl(url);
-            foreach(NSHttpCookie c in sharedCookies) {
+            foreach (NSHttpCookie c in sharedCookies)
+            {
                 NSHttpCookieStorage.SharedStorage.DeleteCookie(c);
             }
 
@@ -160,7 +162,7 @@ namespace Xam.Plugin.WebView.iOS
                 NSHttpCookieStorage.SharedStorage.SetCookie(newCookie);
 
                 var store = _configuration.WebsiteDataStore.HttpCookieStore;
-                store.SetCookie(newCookie, () => {});
+                store.SetCookie(newCookie, () => { });
 
                 toReturn = await OnGetCookieRequestAsync(cookie.Name);
 
@@ -173,7 +175,8 @@ namespace Xam.Plugin.WebView.iOS
             return toReturn;
         }
 
-        async Task<string> OnGetAllCookiesRequestAsync() {
+        async Task<string> OnGetAllCookiesRequestAsync()
+        {
             if (Control == null || Element == null)
             {
                 return string.Empty;
@@ -202,7 +205,8 @@ namespace Xam.Plugin.WebView.iOS
                 }
             }
 
-            if(cookieCollection.Length > 0) {
+            if (cookieCollection.Length > 0)
+            {
                 cookieCollection = cookieCollection.Remove(cookieCollection.Length - 2);
             }
 

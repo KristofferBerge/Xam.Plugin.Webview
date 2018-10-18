@@ -32,7 +32,14 @@ namespace Xam.Plugin.WebView.iOS
         {
 			if (Reference == null || !Reference.TryGetTarget(out FormsWebViewRenderer renderer)) return;
 			if (renderer.Element == null) return;
-            
+
+            // If the navigation event originates from another frame than main (iframe?) it's not a navigation event we care about
+            if (!navigationAction.TargetFrame.MainFrame) {
+                decisionHandler(WKNavigationActionPolicy.Allow);
+                return;
+            }
+
+
             var response = renderer.Element.HandleNavigationStartRequest(navigationAction.Request.Url.ToString());
             
             if (response.Cancel || response.OffloadOntoDevice)

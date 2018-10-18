@@ -95,11 +95,11 @@ namespace Xam.Plugin.WebView.MacOS
                 NavigationDelegate = _navigationDelegate
             };
 
-            SetUserAgent();
 
             FormsWebView.CallbackAdded += OnCallbackAdded;
 
             SetNativeControl(wkWebView);
+            SetUserAgent();
             OnControlChanged?.Invoke(this, wkWebView);
         }
 
