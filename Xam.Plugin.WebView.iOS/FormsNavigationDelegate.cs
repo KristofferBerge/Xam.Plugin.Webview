@@ -34,7 +34,7 @@ namespace Xam.Plugin.WebView.iOS
 			if (renderer.Element == null) return;
 
             // If the navigation event originates from another frame than main (iframe?) it's not a navigation event we care about
-            if (!navigationAction.TargetFrame.MainFrame) {
+            if (navigationAction.TargetFrame != null && !navigationAction.TargetFrame.MainFrame) {
                 decisionHandler(WKNavigationActionPolicy.Allow);
                 return;
             }
