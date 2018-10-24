@@ -4,6 +4,7 @@ using WebKit;
 using Xam.Plugin.WebView.Abstractions;
 using UIKit;
 using Xamarin.Forms;
+using ObjCRuntime;
 
 namespace Xam.Plugin.WebView.iOS
 {
@@ -33,8 +34,14 @@ namespace Xam.Plugin.WebView.iOS
 			if (Reference == null || !Reference.TryGetTarget(out FormsWebViewRenderer renderer)) return;
 			if (renderer.Element == null) return;
 
+            // If navigation target frame is null, this can mean that the link contains target="_blank". Start loadrequest to perform the navigation
+            if(navigationAction.TargetFrame == null)
+            {
+                webView.LoadRequest(navigationAction.Request);
+                return;
+            }
             // If the navigation event originates from another frame than main (iframe?) it's not a navigation event we care about
-            if (navigationAction.TargetFrame != null && !navigationAction.TargetFrame.MainFrame) {
+            if (!navigationAction.TargetFrame.MainFrame) {
                 decisionHandler(WKNavigationActionPolicy.Allow);
                 return;
             }
@@ -108,5 +115,6 @@ namespace Xam.Plugin.WebView.iOS
                 renderer.Element.CurrentUrl = webView.Url.ToString();
             });
         }
+
     }
 }
